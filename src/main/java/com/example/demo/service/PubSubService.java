@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.example.demo.utils.TimeHelper;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -49,7 +50,7 @@ public class PubSubService {
 
             ApiFuture<String> messageIdFuture = publisher.publish(pubsubMessage);
             String messageId = messageIdFuture.get();
-            System.out.println("Published message ID: " + messageId);
+            System.out.println(TimeHelper.getCurrentTime() + "Send Message to queue: " + message + "#### id: "+ messageId);
         } finally {
             if (publisher != null) {
                 publisher.shutdown();
