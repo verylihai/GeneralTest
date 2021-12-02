@@ -14,9 +14,12 @@ import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.pubsub.v1.Subscriber;
+import com.google.cloud.pubsub.v1.SubscriptionAdminClient;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.PushConfig;
+import com.google.pubsub.v1.Subscription;
 import com.google.pubsub.v1.TopicName;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +27,16 @@ import org.springframework.stereotype.Service;
 public class PubSubService {
 
 //    @Value("${google.project_id")
-    private String GOOGLE_PROJECT_ID = "nftygifts-dev";
+    private String GOOGLE_PROJECT_ID = "nfty-gifts-79919";
 
 //    @Value("${google.topic_id}")
-    private String GOOGLE_TOPIC_ID = "topic_test";
+    private String GOOGLE_TOPIC_ID = "nftygifts-order-topic";
 
 //    @Value("${google.sub_id}")
-    private String GOOGLE_SUB_ID = "topic-sub2";
+    private String GOOGLE_SUB_ID = "mint-sub-test";
 
 //    @Value("${google.cloud_key_path}")
-    private String GOOGLE_CLOUD_KEY_PATH = "/Users/daiyonghui/tools/google/cloudKey/nftygifts-dev-67ad4564dfbc.json";
+    private String GOOGLE_CLOUD_KEY_PATH = "/Users/daiyonghui/tools/google/cloudKey/nfty-gifts-79919-dbfece8d9818.json";
 
     public void sendMessage(String message) throws IOException, InterruptedException, ExecutionException {
         TopicName topicName = TopicName.of(GOOGLE_PROJECT_ID, GOOGLE_TOPIC_ID);
@@ -84,6 +87,23 @@ public class PubSubService {
         }
 
         return "no message";
+    }
+
+    public void createSubsc() {
+        try (SubscriptionAdminClient subscriptionAdminClient = SubscriptionAdminClient.create()) {
+            TopicName topicName = TopicName.of(GOOGLE_PROJECT_ID, "nftygifts-mint-topic");
+            ProjectSubscriptionName subscriptionName =
+                    ProjectSubscriptionName.of(GOOGLE_PROJECT_ID, "mint-sub-test");
+            // Create a pull subscription with default acknowledgement deadline of 10 seconds.
+            // Messages not successfully acknowledged within 10 seconds will get resent by the server.
+            Subscription subscription =
+                    subscriptionAdminClient.createSubscription(
+                            subscriptionName, topicName, PushConfig.getDefaultInstance(), 10);
+            System.out.println("Created pull subscription: " + subscription.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private GoogleCredentials getCredentials() {
